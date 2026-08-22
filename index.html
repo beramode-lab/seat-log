@@ -1086,6 +1086,14 @@ function startApp(user){
   $("#who").textContent = user.name + " 선생님";
   select(null);
   renderAll();
+  keepStorage();
+}
+// 저장 공간이 부족할 때 브라우저가 기록을 지우지 않도록 요청한다(지원할 때만)
+function keepStorage(){
+  if(navigator.storage && navigator.storage.persist){
+    navigator.storage.persisted().then(ok => ok || navigator.storage.persist())
+      .catch(e => console.warn("저장 유지 요청 실패", e));
+  }
 }
 function logout(){
   clearSession();
