@@ -260,7 +260,6 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
     </form>
 
     <form class="auth-form" id="signupForm" autocomplete="off">
-      <div class="fld"><label for="suName">선생님 이름</label><input type="text" id="suName" placeholder="예: 김하늘"></div>
       <div class="fld"><label for="suId">아이디</label><input type="text" id="suId" placeholder="영문·숫자 3자 이상" autocomplete="username"></div>
       <div class="fld"><label for="suPw">비밀번호</label><input type="password" id="suPw" placeholder="6자 이상" autocomplete="new-password"></div>
       <div class="fld"><label for="suPw2">비밀번호 확인</label><input type="password" id="suPw2" autocomplete="new-password"></div>
@@ -268,7 +267,7 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
       <button type="submit" class="btn primary go" id="signupGo">가입하고 시작하기</button>
     </form>
 
-    <p class="auth-note">계정과 학급 기록은 이 컴퓨터의 브라우저에만 저장되며 어디로도 전송되지 않습니다. 비밀번호는 원문 대신 암호화된 값(PBKDF2)으로만 저장되어, 잊어버리면 되찾을 수 없습니다. 선생님별로 학급 명단·자리 배치·기록이 따로 관리됩니다.</p>
+    <p class="auth-note">아이디와 비밀번호는 이 브라우저 안에서만 쓰이는 잠금장치입니다. 계정과 학급 기록 모두 이 컴퓨터에만 저장되고 어디로도 전송되지 않으며, 이름·이메일 같은 개인정보는 받지 않습니다. 비밀번호는 원문 대신 암호화된 값(PBKDF2)으로만 저장되어 잊어버리면 되찾을 수 없으니, <b>설정 → 데이터에서 백업 파일을 주기적으로 받아 두세요.</b></p>
   </div>
 </div>
 
@@ -278,7 +277,7 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
     <div class="behaviors" id="behaviors"></div>
   </div>
   <div class="hd-right">
-    <div class="who-row"><span id="who"></span><button class="link-btn" id="logoutBtn">로그아웃</button></div>
+    <div class="who-row"><span id="who"></span><button class="link-btn" id="feedbackBtn">의견 보내기</button><button class="link-btn" id="logoutBtn">로그아웃</button></div>
     <button class="icon-btn" id="settingsBtn">⚙ 설정</button>
     <button class="icon-btn" id="logToggle">기록 숨기기</button>
   </div>
@@ -352,6 +351,15 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
         <button class="btn" id="xlsToday">오늘 것만 내려받기</button>
       </div>
       <div class="row"><span id="dataStat" class="help" style="margin:0"></span></div>
+      <h3 style="margin-top:18px">백업 파일 (기기 옮기기 · 되살리기)</h3>
+      <p class="help">엑셀은 보관용이라 되돌릴 수 없습니다. 다른 컴퓨터로 옮기거나 실수로 지웠을 때를 대비해 <b>백업 파일</b>을 함께 받아 두세요. 학생 명단·자리 배치·행동 기록이 모두 담깁니다.</p>
+      <div class="row">
+        <button class="btn primary" id="backupSave">백업 파일 내려받기</button>
+        <button class="btn" id="backupLoad">백업 파일 불러오기</button>
+        <input type="file" id="backupFile" accept="application/json,.json" style="display:none">
+      </div>
+      <div class="note">불러오면 지금 계정의 명단·기록이 백업 파일 내용으로 <b>덮어써집니다</b>. 불러오기 전에 현재 상태를 먼저 내려받아 두시면 안전합니다.</div>
+
       <h3 style="margin-top:18px">정리</h3>
       <p class="help">기록만 지우고 학생 명단과 자리 배치는 그대로 둡니다.</p>
       <div class="row">
@@ -375,11 +383,26 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
   </div>
 </div>
 
+<div class="mask" id="fbMask">
+  <div class="modal" style="width:min(520px,100%)">
+    <div class="modal-hd"><h2>의견 보내기</h2><button class="btn" id="fbClose">닫기</button></div>
+    <div style="padding:16px 18px">
+      <p class="help">불편한 점이나 바라는 기능을 아래에 적고 <b>내용 복사</b>를 누른 뒤, 전달해 주세요. 버전·화면 정보가 함께 복사되어 문제를 찾기 쉬워집니다. 학생 이름이나 기록은 들어가지 않습니다.</p>
+      <textarea id="fbText" style="min-height:190px"></textarea>
+    </div>
+    <div class="modal-ft">
+      <button class="btn" id="fbCopy">내용 복사</button>
+      <button class="btn primary" id="fbOpen" style="display:none">의견 보내는 곳 열기</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
 "use strict";
-const APP_VERSION = "1.0.0";            // 배포 버전 (git 태그와 같이 올린다)
+const APP_VERSION = "1.1.0";            // 배포 버전 (git 태그와 같이 올린다)
+const FEEDBACK_URL = "";                // 의견을 받을 구글폼 등 주소 (비워두면 복사만 안내)
 const LEGACY_KEY  = "seatlog.v1";       // 로그인 기능 이전에 쓰던 저장 키
 const AUTH_KEY    = "seatlog.auth";
 const SESSION_KEY = "seatlog.session";
@@ -975,6 +998,76 @@ function exportXls(onlyToday){
 $("#xlsAll").addEventListener("click", () => exportXls(false));
 $("#xlsToday").addEventListener("click", () => exportXls(true));
 
+/* ---------------- 백업 파일 ---------------- */
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+$("#backupSave").addEventListener("click", () => {
+  const pack = {app:"seat-log", version:APP_VERSION, exportedAt:stamp(Date.now()), data:state};
+  downloadBlob(new Blob([JSON.stringify(pack)], {type:"application/json"}), "학급백업_" + today() + ".json");
+  toast("백업 파일을 내려받았습니다");
+});
+$("#backupLoad").addEventListener("click", () => $("#backupFile").click());
+$("#backupFile").addEventListener("change", e => {
+  const file = e.target.files[0];
+  e.target.value = "";                 // 같은 파일을 다시 골라도 동작하게
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const pack = JSON.parse(reader.result);
+      const d = (pack && pack.data) ? pack.data : pack;
+      if(!d || !Array.isArray(d.students) || !Array.isArray(d.logs)) throw new Error("학급 백업 파일이 아닙니다");
+      if(!confirm("지금 계정의 학생 " + state.students.length + "명 · 기록 " + state.logs.length + "건을\n"
+        + "백업 파일(학생 " + d.students.length + "명 · 기록 " + d.logs.length + "건)로 덮어씁니다. 계속할까요?")) return;
+      state = migrate(Object.assign({v:1, size:"m", behaviors:DEFAULT_BEHAVIORS.slice()}, d));
+      save(); select(null); renderAll(); openModal("data");
+      toast("백업을 불러왔습니다");
+    }catch(err){
+      alert("불러오지 못했습니다: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+});
+
+/* ---------------- 의견 보내기 ---------------- */
+const fbMask = $("#fbMask");
+$("#feedbackBtn").addEventListener("click", () => {
+  const today0 = state ? state.logs.filter(l => dayKey(l.ts) === today()).length : 0;
+  $("#fbText").value = [
+    "[학급 행동 기록판 의견]",
+    "무엇을 하다가 어떤 일이 있었는지 적어 주세요:",
+    "",
+    "",
+    "--- 아래는 자동으로 채워진 정보입니다 ---",
+    "버전: v" + APP_VERSION,
+    "일시: " + stamp(Date.now()),
+    "화면: " + innerWidth + "x" + innerHeight,
+    "학생 수: " + (state ? state.students.length : 0) + "명 · 기록: 오늘 " + today0 + "건 / 전체 " + (state ? state.logs.length : 0) + "건",
+    "브라우저: " + navigator.userAgent
+  ].join("\n");
+  $("#fbOpen").style.display = FEEDBACK_URL ? "" : "none";
+  fbMask.classList.add("on");
+  setTimeout(() => $("#fbText").focus(), 30);
+});
+$("#fbClose").addEventListener("click", () => fbMask.classList.remove("on"));
+fbMask.addEventListener("click", e => { if(e.target === fbMask) fbMask.classList.remove("on"); });
+$("#fbCopy").addEventListener("click", async () => {
+  const text = $("#fbText").value;
+  try{
+    await navigator.clipboard.writeText(text);
+    toast("복사했습니다");
+  }catch(err){
+    $("#fbText").select();             // 클립보드가 막힌 환경에서는 직접 복사하도록
+    toast("Ctrl+C 로 복사해 주세요");
+  }
+});
+$("#fbOpen").addEventListener("click", () => { if(FEEDBACK_URL) window.open(FEEDBACK_URL, "_blank", "noopener"); });
+
 $("#clearToday").addEventListener("click", () => {
   const d = today();
   const n = state.logs.filter(l => dayKey(l.ts) === d).length;
@@ -1002,7 +1095,8 @@ function toast(msg){
 }
 document.addEventListener("keydown", e => {
   if(e.key !== "Escape") return;
-  if(memoMask.classList.contains("on")) closeMemo();
+  if(fbMask.classList.contains("on")) fbMask.classList.remove("on");
+  else if(memoMask.classList.contains("on")) closeMemo();
   else if(mask.classList.contains("on")) closeModal();
   else if(arrange) setArrange(false);
   else if(selected) select(null);
@@ -1065,7 +1159,7 @@ function authTab(name){
   $("#signupForm").classList.toggle("on", !login);
   $("#loginMsg").textContent = "";
   $("#signupMsg").textContent = "";
-  setTimeout(() => $(login ? "#loginId" : "#suName").focus(), 30);
+  setTimeout(() => $(login ? "#loginId" : "#suId").focus(), 30);
 }
 $("#tabLogin").addEventListener("click", () => authTab("login"));
 $("#tabSignup").addEventListener("click", () => authTab("signup"));
@@ -1083,7 +1177,7 @@ function startApp(user){
   arrange = false;
   document.body.classList.remove("arrange");
   document.body.classList.add("authed");
-  $("#who").textContent = user.name + " 선생님";
+  $("#who").textContent = (user.name || user.loginId) + " 님";
   select(null);
   renderAll();
   keepStorage();
@@ -1131,11 +1225,9 @@ $("#loginForm").addEventListener("submit", async e => {
 $("#signupForm").addEventListener("submit", async e => {
   e.preventDefault();
   const msg = $("#signupMsg"), btn = $("#signupGo");
-  const name = $("#suName").value.trim();
   const id   = $("#suId").value.trim().toLowerCase();
   const pw   = $("#suPw").value, pw2 = $("#suPw2").value;
   msg.classList.remove("ok");
-  if(!name){ msg.textContent = "선생님 이름을 입력해 주세요."; return; }
   if(!/^[a-z0-9_.-]{3,20}$/.test(id)){ msg.textContent = "아이디는 영문·숫자 3~20자로 만들어 주세요."; return; }
   if(pw.length < 6){ msg.textContent = "비밀번호는 6자 이상으로 정해 주세요."; return; }
   if(pw !== pw2){ msg.textContent = "비밀번호 확인이 일치하지 않습니다."; return; }
@@ -1144,14 +1236,14 @@ $("#signupForm").addEventListener("submit", async e => {
   btn.disabled = true; btn.textContent = "만드는 중…";
   try{
     const {salt, hash} = await makeHash(pw);
-    const user = {id: uid(), loginId: id, name, salt, hash, createdAt: Date.now()};
+    const user = {id: uid(), loginId: id, salt, hash, createdAt: Date.now()};
     d.users.push(user);
     localStorage.setItem(AUTH_KEY, JSON.stringify(d));
     setSession(user.id, true);
-    ["#suName","#suId","#suPw","#suPw2"].forEach(s => { $(s).value = ""; });
+    ["#suId","#suPw","#suPw2"].forEach(s => { $(s).value = ""; });
     msg.textContent = "";
     startApp(user);
-    toast(name + " 선생님, 환영합니다");
+    toast(id + " 님, 환영합니다");
   }catch(err){
     msg.textContent = "가입 처리 중 문제가 생겼습니다: " + err.message;
   }finally{
