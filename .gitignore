@@ -1,0 +1,5 @@
+# 작업 중 생성되는 파일
+행동기록_*.xls
+*.log
+.DS_Store
+Thumbs.db
