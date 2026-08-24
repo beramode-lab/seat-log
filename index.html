@@ -135,6 +135,7 @@ body.nolog #log{display:none}
 .li .b.neu{background:var(--neu-soft);color:#3f3597}
 .li .b.out{background:var(--out-soft);color:#4b2fa8}
 .li .out-time{font-size:12px;font-weight:700;color:#6b4fd0}
+.li .subj{font-size:11px;font-weight:800;color:var(--muted);background:#f2f5fa;border-radius:5px;padding:1px 6px}
 .li .memo{flex:1 1 100%;color:var(--muted);font-size:12px;padding-left:48px}
 .li .del{margin-left:auto;border:0;background:none;color:#b6bec9;font-size:15px;padding:0 3px;line-height:1}
 .li .del:hover{color:var(--neg)}
@@ -184,6 +185,34 @@ textarea{min-height:190px;resize:vertical;line-height:1.6}
 .brow input[type=text]{flex:1}
 .brow select{border:1.5px solid var(--line);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;background:#fbfcfe}
 .brow .rm{border:1.5px solid var(--line);background:#fff;border-radius:8px;width:38px;height:38px;font-size:15px;color:var(--muted);flex:0 0 auto}
+table.tt, table.stat{border-collapse:collapse;width:100%;font-size:13px}
+table.tt th, table.tt td, table.stat th, table.stat td{
+  border:1px solid var(--line);padding:6px 8px;text-align:center;white-space:nowrap;
+}
+table.tt th, table.stat th{background:#f2f5fa;font-weight:800;color:var(--muted)}
+table.tt td input{
+  width:92px;border:0;padding:5px 6px;font-size:13px;font-family:inherit;
+  background:#fbfcfe;border-radius:6px;text-align:center;
+}
+table.tt td input:focus{outline:2px solid var(--accent);background:#fff}
+table.tt td.ph{background:#f7f9fc;font-weight:800;color:var(--muted);font-size:12px}
+table.stat td{text-align:right;font-variant-numeric:tabular-nums}
+table.stat td:first-child, table.stat td.txt{text-align:left;font-weight:700;white-space:normal}
+table.stat tr.total td{background:#f7f9fc;font-weight:800}
+table.stat td b{color:var(--neg)}
+table.stat td i{color:var(--pos);font-style:normal}
+.stat-empty{padding:30px 10px;text-align:center;color:var(--muted);font-size:14px}
+#nowPeriod{
+  background:#eef2f8;border:1px solid var(--line);color:var(--muted);
+  padding:3px 10px;border-radius:999px;font-size:12px;font-weight:800;
+}
+#nowPeriod.live{background:var(--pos-soft);border-color:#a9dfc9;color:#12603f}
+.period-row{display:flex;gap:8px;align-items:center}
+.period-row input[type=text]{flex:1}
+.period-row input[type=time]{
+  border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;
+  font-size:14px;font-family:inherit;background:#fbfcfe;
+}
 .note{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--muted);line-height:1.65}
 .modal-ft{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
 /* ---------- 교사 로그인 화면 ---------- */
@@ -273,11 +302,12 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
 
 <header>
   <div class="hd-left">
-    <p class="hd-title">학생이 한 행동 <span id="selBadge" class="empty">학생을 먼저 누르세요</span></p>
+    <p class="hd-title">학생이 한 행동 <span id="selBadge" class="empty">학생을 먼저 누르세요</span><span id="nowPeriod"></span></p>
     <div class="behaviors" id="behaviors"></div>
   </div>
   <div class="hd-right">
     <div class="who-row"><span id="who"></span><button class="link-btn" id="feedbackBtn">의견 보내기</button><button class="link-btn" id="logoutBtn">로그아웃</button></div>
+    <button class="icon-btn" id="statsBtn">📊 정리</button>
     <button class="icon-btn" id="settingsBtn">⚙ 설정</button>
     <button class="icon-btn" id="logToggle">기록 숨기기</button>
   </div>
@@ -306,6 +336,7 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
       <button class="tab on" data-tab="students">학생 명단</button>
       <button class="tab" data-tab="behaviors">행동 버튼</button>
       <button class="tab" data-tab="seats">자리 배치</button>
+      <button class="tab" data-tab="timetable">시간표</button>
       <button class="tab" data-tab="data">데이터 내려받기</button>
     </div>
 
@@ -341,6 +372,22 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
         <button class="btn" data-size="l">크게</button>
       </div>
       <div class="note">화면 위쪽을 교실 앞(교탁 쪽)으로 두고 배치하세요. 배치는 화면 비율로 저장되어 다른 크기의 화면에서 열어도 모둠 모양이 유지됩니다.</div>
+    </div>
+
+    <div class="pane" data-pane="timetable">
+      <h3>교시별 시간</h3>
+      <p class="help">기록한 시각이 어느 교시인지 자동으로 붙습니다. 학교 일과에 맞게 고쳐 주세요. 어느 교시에도 걸리지 않는 시각은 <b>수업 외</b>로 묶입니다.</p>
+      <div class="blist" id="periodEdit"></div>
+      <div class="row">
+        <button class="btn" id="addPeriod">+ 교시 추가</button>
+        <button class="btn" id="resetPeriods">기본값(초등 6교시)</button>
+      </div>
+
+      <h3 style="margin-top:18px">요일별 시간표</h3>
+      <p class="help">칸에 과목명을 적으면 기록이 과목별로 정리됩니다. 빈 칸은 '(과목 없음)'으로 묶입니다.</p>
+      <div style="overflow-x:auto"><table class="tt" id="ttGrid"></table></div>
+      <div class="row"><button class="btn primary" id="saveTimetable">시간표 저장</button></div>
+      <div class="note">시간표를 고쳐도 <b>이미 기록된 내용의 교시·과목은 바뀌지 않습니다.</b> 학기 중 시간표가 바뀌어도 지난 기록이 뒤섞이지 않게 하기 위해서입니다.</div>
     </div>
 
     <div class="pane" data-pane="data">
@@ -383,6 +430,29 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
   </div>
 </div>
 
+<div class="mask" id="statMask">
+  <div class="modal" style="width:min(860px,100%)">
+    <div class="modal-hd"><h2>기록 정리</h2><button class="btn" id="statClose">닫기</button></div>
+    <div style="padding:14px 18px 4px">
+      <div class="row" style="margin-top:0">
+        <span style="font-size:13px;font-weight:800;color:var(--muted)">기간</span>
+        <button class="btn" data-range="today">오늘</button>
+        <button class="btn" data-range="week">최근 7일</button>
+        <button class="btn" data-range="all">전체</button>
+        <span style="font-size:13px;font-weight:800;color:var(--muted);margin-left:10px">기준</span>
+        <button class="btn" data-mode="subject">과목별</button>
+        <button class="btn" data-mode="period">교시별</button>
+        <button class="btn" data-mode="student">학생별</button>
+      </div>
+    </div>
+    <div class="pane on" style="padding-top:6px">
+      <div style="overflow-x:auto" id="statBox"></div>
+      <p class="help" id="statNote" style="margin-top:10px"></p>
+    </div>
+    <div class="modal-ft"><button class="btn" id="statXls">이 표 엑셀로 받기</button><button class="btn primary" id="statClose2">완료</button></div>
+  </div>
+</div>
+
 <div class="mask" id="fbMask">
   <div class="modal" style="width:min(520px,100%)">
     <div class="modal-hd"><h2>의견 보내기</h2><button class="btn" id="fbClose">닫기</button></div>
@@ -401,7 +471,7 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
 
 <script>
 "use strict";
-const APP_VERSION = "1.1.0";            // 배포 버전 (git 태그와 같이 올린다)
+const APP_VERSION = "1.2.0";            // 배포 버전 (git 태그와 같이 올린다)
 const FEEDBACK_URL = "";                // 의견을 받을 구글폼 등 주소 (비워두면 복사만 안내)
 const LEGACY_KEY  = "seatlog.v1";       // 로그인 기능 이전에 쓰던 저장 키
 const AUTH_KEY    = "seatlog.auth";
@@ -426,6 +496,19 @@ const DEFAULT_BEHAVIORS = [
 ];
 const TYPE_LABEL = {pos:"긍정", neg:"주의", neu:"기타", out:"외출"};
 const CARD_SIZES = {s:{w:92,h:56}, m:{w:108,h:64}, l:{w:132,h:78}};
+const DAYS = ["월","화","수","목","금"];
+const DEFAULT_PERIODS = [
+  {name:"1교시", start:"09:00", end:"09:40"},
+  {name:"2교시", start:"09:50", end:"10:30"},
+  {name:"3교시", start:"10:40", end:"11:20"},
+  {name:"4교시", start:"11:30", end:"12:10"},
+  {name:"5교시", start:"13:00", end:"13:40"},
+  {name:"6교시", start:"13:50", end:"14:30"}
+];
+const defaultTimetable = () => ({
+  periods: DEFAULT_PERIODS.map(p => Object.assign({}, p)),
+  subjects: DAYS.map(() => [])          // subjects[요일][교시] = 과목명
+});
 const OUT_LIMIT_MIN = 10;   // 이 시간을 넘기면 화면에 알림
 
 let state = null;      // 로그인한 교사의 학급 데이터
@@ -446,11 +529,19 @@ function load(){
       return migrate(s);
     }
   }catch(e){ console.warn("저장 데이터를 읽지 못했습니다", e); }
-  return {v:2, students:[], behaviors:DEFAULT_BEHAVIORS.slice(), logs:[], size:"m"};
+  return {v:3, students:[], behaviors:DEFAULT_BEHAVIORS.slice(), logs:[], size:"m", timetable:defaultTimetable()};
 }
-// 예전 형식(격자 자리 + 화장실이 '기타' 유형)을 새 형식으로 올린다
+// 예전 형식을 현재 형식으로 단계별로 올린다
 function migrate(s){
-  if((s.v || 1) >= 2) return s;
+  if((s.v || 1) < 2) migrateV2(s);
+  if(s.v < 3){
+    s.timetable = s.timetable || defaultTimetable();
+    s.v = 3;
+  }
+  return s;
+}
+// v1 → v2: 격자 자리를 자유 좌표로, 화장실·보건실을 '외출' 유형으로
+function migrateV2(s){
   const cols = (s.grid && s.grid.cols) || 6, rows = (s.grid && s.grid.rows) || 5;
   for(const st of s.students){
     if(typeof st.x !== "number" && typeof st.slot === "number"){
@@ -467,7 +558,6 @@ function migrate(s){
   if(!byLabel("기타")) s.behaviors.push({id:uid(), label:"기타", type:"neu", ask:true});
   delete s.grid;
   s.v = 2;
-  return s;
 }
 let saveWarned = false;
 function save(){
@@ -490,6 +580,41 @@ function hms(ts){ const d = new Date(ts); return pad(d.getHours())+":"+pad(d.get
 // 엑셀에 넣을 '2026-08-23 14:20:37' 형태의 일시
 function stamp(ts){ return dayKey(ts) + " " + hms(ts); }
 const today = () => dayKey(Date.now());
+
+/* ---------------- 시간표 ---------------- */
+const NO_PERIOD = "수업 외";
+const NO_SUBJECT = "(과목 없음)";
+function toMin(hhmmStr){
+  const m = /^(\d{1,2}):(\d{2})$/.exec((hhmmStr || "").trim());
+  return m ? (+m[1]) * 60 + (+m[2]) : null;
+}
+// 그 시각이 몇 교시 무슨 과목인지 (수업 시간이 아니면 null)
+function periodAt(ts){
+  const tt = state && state.timetable;
+  if(!tt || !tt.periods) return null;
+  const d = new Date(ts);
+  const mins = d.getHours() * 60 + d.getMinutes();
+  const dayIdx = d.getDay() - 1;                       // 0=월 … 4=금
+  for(let i = 0; i < tt.periods.length; i++){
+    const p = tt.periods[i];
+    const s = toMin(p.start), e = toMin(p.end);
+    if(s === null || e === null || mins < s || mins >= e) continue;
+    const row = (dayIdx >= 0 && dayIdx < DAYS.length) ? (tt.subjects[dayIdx] || []) : [];
+    return {index:i, name: p.name || (i + 1) + "교시", subject: (row[i] || "").trim()};
+  }
+  return null;
+}
+// 기록에 저장된 값을 우선 쓰고, 없으면 지금 시간표로 계산한다
+function logPeriod(l){
+  if(typeof l.period === "string") return l.period || NO_PERIOD;
+  const p = periodAt(l.ts);
+  return p ? p.name : NO_PERIOD;
+}
+function logSubject(l){
+  if(typeof l.subject === "string") return l.subject || NO_SUBJECT;
+  const p = periodAt(l.ts);
+  return (p && p.subject) ? p.subject : NO_SUBJECT;
+}
 
 /* ---------------- 그리기 ---------------- */
 const $ = s => document.querySelector(s);
@@ -660,6 +785,11 @@ function renderLog(){
     const del = document.createElement("button"); del.className = "del"; del.textContent = "✕"; del.title = "이 기록 지우기";
     del.addEventListener("click", () => removeLog(l.id));
     row.append(t, s, bl);
+    const subj = logSubject(l);
+    if(subj !== NO_SUBJECT){
+      const sj = document.createElement("span"); sj.className = "subj"; sj.textContent = subj;
+      row.appendChild(sj);
+    }
     if(logType(l) === "out"){
       const ot = document.createElement("span"); ot.className = "out-time";
       ot.textContent = l.returnTs
@@ -673,7 +803,7 @@ function renderLog(){
   }
 }
 
-function renderAll(){ renderBehaviors(); renderBoard(); renderLog(); renderAlerts(); }
+function renderAll(){ renderBehaviors(); renderBoard(); renderLog(); renderAlerts(); renderNowPeriod(); }
 
 /* ---------------- 선택 & 기록 ---------------- */
 function select(id){
@@ -701,9 +831,11 @@ function record(behaviorId, memo){
     toast(st.name + " 학생은 이미 외출 중입니다");
     return;
   }
+  const now = Date.now(), p = periodAt(now);
   state.logs.push({
-    id: uid(), ts: Date.now(), studentId: st.id,
+    id: uid(), ts: now, studentId: st.id,
     behaviorId: b.id, behaviorLabel: b.label, type: b.type,
+    period: p ? p.name : "", subject: p ? p.subject : "",
     memo: (memo || "").trim()
   });
   save();
@@ -819,6 +951,7 @@ function openModal(tab){
   $("#rosterText").value = state.students.map(s => s.num + " " + s.name).join("\n");
   document.querySelectorAll("[data-size]").forEach(b => b.classList.toggle("primary", b.dataset.size === state.size));
   renderBehaviorEditor();
+  renderPeriodEditor();
   $("#dataStat").textContent = "전체 " + state.logs.length + "건 · 오늘 "
     + state.logs.filter(l => dayKey(l.ts) === today()).length + "건 · 학생 " + state.students.length + "명";
 }
@@ -901,6 +1034,95 @@ $("#saveBehaviors").addEventListener("click", () => {
   toast("행동 버튼을 저장했습니다");
 });
 
+/* 시간표 */
+function renderPeriodEditor(){
+  const wrap = $("#periodEdit");
+  wrap.innerHTML = "";
+  state.timetable.periods.forEach((p, i) => {
+    const row = document.createElement("div"); row.className = "period-row brow";
+    const nm = document.createElement("input"); nm.type = "text"; nm.value = p.name || (i+1)+"교시"; nm.maxLength = 10;
+    const st = document.createElement("input"); st.type = "time"; st.value = p.start || "";
+    const en = document.createElement("input"); en.type = "time"; en.value = p.end || "";
+    const sep = document.createElement("span"); sep.textContent = "~"; sep.style.cssText = "color:var(--muted);font-weight:800";
+    const rm = document.createElement("button"); rm.className = "rm"; rm.textContent = "✕"; rm.title = "삭제";
+    rm.addEventListener("click", () => row.remove());
+    row.append(nm, st, sep, en, rm);
+    wrap.appendChild(row);
+  });
+  renderTTGrid();
+}
+function collectPeriods(){
+  return Array.from(document.querySelectorAll("#periodEdit .period-row")).map((row, i) => {
+    const [nm, st, en] = row.querySelectorAll("input");
+    return {name: nm.value.trim() || (i+1)+"교시", start: st.value, end: en.value};
+  });
+}
+// 교시 편집 결과에 맞춰 요일×교시 과목 표를 다시 그린다
+function renderTTGrid(){
+  const periods = collectPeriods();
+  const subjects = state.timetable.subjects || [];
+  const t = $("#ttGrid");
+  t.innerHTML = "";
+  const head = document.createElement("tr");
+  head.appendChild(document.createElement("th"));
+  periods.forEach(p => {
+    const th = document.createElement("th");
+    th.textContent = p.name;
+    head.appendChild(th);
+  });
+  t.appendChild(head);
+  DAYS.forEach((day, d) => {
+    const tr = document.createElement("tr");
+    const th = document.createElement("td"); th.className = "ph"; th.textContent = day;
+    tr.appendChild(th);
+    periods.forEach((p, i) => {
+      const td = document.createElement("td");
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.maxLength = 8; inp.placeholder = "-";
+      inp.value = (subjects[d] && subjects[d][i]) || "";
+      inp.dataset.day = d; inp.dataset.period = i;
+      td.appendChild(inp);
+      tr.appendChild(td);
+    });
+    t.appendChild(tr);
+  });
+}
+$("#addPeriod").addEventListener("click", () => {
+  state.timetable.subjects = collectSubjects();
+  state.timetable.periods = collectPeriods();
+  state.timetable.periods.push({name: (state.timetable.periods.length + 1) + "교시", start:"", end:""});
+  renderPeriodEditor();
+});
+$("#resetPeriods").addEventListener("click", () => {
+  state.timetable.periods = DEFAULT_PERIODS.map(p => Object.assign({}, p));
+  renderPeriodEditor();
+});
+function collectSubjects(){
+  const out = DAYS.map(() => []);
+  document.querySelectorAll("#ttGrid input").forEach(inp => {
+    out[+inp.dataset.day][+inp.dataset.period] = inp.value.trim();
+  });
+  return out;
+}
+$("#saveTimetable").addEventListener("click", () => {
+  const periods = collectPeriods();
+  const bad = periods.find(p => toMin(p.start) === null || toMin(p.end) === null || toMin(p.end) <= toMin(p.start));
+  if(bad){ toast("'" + bad.name + "'의 시작·종료 시각을 확인해 주세요"); return; }
+  // 교시를 줄였으면 남는 과목 칸도 함께 버린다
+  state.timetable = {periods, subjects: collectSubjects().map(row => row.slice(0, periods.length))};
+  save(); renderNowPeriod();
+  toast("시간표를 저장했습니다");
+});
+
+// 헤더에 지금이 몇 교시 무슨 과목인지 보여준다
+function renderNowPeriod(){
+  const el = $("#nowPeriod");
+  if(!el || !state) return;
+  const p = periodAt(Date.now());
+  el.textContent = p ? (p.name + (p.subject ? " · " + p.subject : "")) : "수업 시간 아님";
+  el.classList.toggle("live", !!p);
+}
+
 /* 자리 배치 */
 $("#autoArrange").addEventListener("click", () => {
   const {w, h} = boardSize(), c = cardSize();
@@ -945,6 +1167,34 @@ function sheet(name, rows){
   return '<Worksheet ss:Name="' + xmlEsc(name) + '"><Table>' + body + "</Table></Worksheet>";
 }
 function logType(l){ const b = behaviorById(l.behaviorId); return b ? b.type : (l.type || "neu"); }
+// 과목별·교시별 집계를 엑셀 시트용 표로 만든다
+function statSheet(mode, logs){
+  const label = mode === "subject" ? "과목" : "교시";
+  const groups = new Map();
+  for(const l of logs){
+    const k = mode === "subject" ? logSubject(l) : logPeriod(l);
+    if(!groups.has(k)) groups.set(k, {all:0, pos:0, neg:0, out:0, outMin:0});
+    const g = groups.get(k), t = logType(l);
+    g.all++;
+    if(t === "pos") g.pos++;
+    else if(t === "neg") g.neg++;
+    else if(t === "out"){ g.out++; if(l.returnTs) g.outMin += outMinutes(l); }
+  }
+  const order = mode === "period" ? state.timetable.periods.map(p => p.name) : [];
+  const keys = Array.from(groups.keys()).sort((a, b) => {
+    if(mode === "period"){
+      const ia = order.indexOf(a), ib = order.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    }
+    return groups.get(b).neg - groups.get(a).neg || groups.get(b).all - groups.get(a).all;
+  });
+  const table = [[label, "기록", "긍정", "주의", "외출", "자리비움(분)"]];
+  for(const k of keys){
+    const g = groups.get(k);
+    table.push([k, g.all, g.pos, g.neg, g.out, g.outMin]);
+  }
+  return table;
+}
 function logLabel(l){ const b = behaviorById(l.behaviorId); return b ? b.label : (l.behaviorLabel || ""); }
 
 function exportXls(onlyToday){
@@ -952,11 +1202,11 @@ function exportXls(onlyToday){
   const logs = state.logs.filter(l => !onlyToday || dayKey(l.ts) === d).sort((a, b) => a.ts - b.ts);
   if(!logs.length){ toast("내려받을 기록이 없습니다"); return; }
 
-  const rec = [["일시","번호","이름","행동","유형","나간시각","돌아온시각","자리비움(분)","특이사항"]];
+  const rec = [["일시","교시","과목","번호","이름","행동","유형","나간시각","돌아온시각","자리비움(분)","특이사항"]];
   for(const l of logs){
     const st = studentById(l.studentId);
     const isOut = logType(l) === "out";
-    rec.push([stamp(l.ts), st ? st.num : "", st ? st.name : "(삭제된 학생)",
+    rec.push([stamp(l.ts), logPeriod(l), logSubject(l), st ? st.num : "", st ? st.name : "(삭제된 학생)",
               logLabel(l), TYPE_LABEL[logType(l)] || "기타",
               isOut ? hms(l.ts) : "",
               isOut ? (l.returnTs ? hms(l.returnTs) : "미복귀") : "",
@@ -984,7 +1234,9 @@ function exportXls(onlyToday){
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n'
     + '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" '
     + 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
-    + sheet("행동기록", rec) + sheet("학생별집계", sum) + "</Workbook>";
+    + sheet("행동기록", rec) + sheet("학생별집계", sum)
+    + sheet("과목별집계", statSheet("subject", logs)) + sheet("교시별집계", statSheet("period", logs))
+    + "</Workbook>";
 
   const name = onlyToday ? d : (dayKey(logs[0].ts) + "_" + dayKey(logs[logs.length - 1].ts));
   const blob = new Blob(["﻿" + xml], {type:"application/vnd.ms-excel;charset=utf-8"});
@@ -997,6 +1249,136 @@ function exportXls(onlyToday){
 }
 $("#xlsAll").addEventListener("click", () => exportXls(false));
 $("#xlsToday").addEventListener("click", () => exportXls(true));
+
+/* ---------------- 기록 정리 (과목별 · 교시별 · 학생별) ---------------- */
+const statMask = $("#statMask");
+let statMode = "subject", statRange = "today";
+
+function rangeLogs(range){
+  if(range === "all") return state.logs.slice();
+  if(range === "today"){ const d = today(); return state.logs.filter(l => dayKey(l.ts) === d); }
+  const from = Date.now() - 7 * 86400000;
+  return state.logs.filter(l => l.ts >= from);
+}
+// 표의 행 목록을 만든다. 교시별은 시간표 순서, 나머지는 주의 많은 순
+function statData(mode, range){
+  const logs = rangeLogs(range);
+  const groups = new Map();
+  const keyOf = l => mode === "subject" ? logSubject(l)
+                   : mode === "period"  ? logPeriod(l)
+                   : nameOf(l.studentId);
+  for(const l of logs){
+    const k = keyOf(l);
+    if(!groups.has(k)) groups.set(k, {key:k, all:0, pos:0, neg:0, out:0, outMin:0, who:new Map()});
+    const g = groups.get(k);
+    const t = logType(l);
+    g.all++;
+    if(t === "pos") g.pos++;
+    else if(t === "neg") g.neg++;
+    else if(t === "out"){ g.out++; if(l.returnTs) g.outMin += outMinutes(l); }
+    if(mode !== "student" && t === "neg"){
+      const n = nameOf(l.studentId);
+      g.who.set(n, (g.who.get(n) || 0) + 1);
+    }
+  }
+  let rows = Array.from(groups.values());
+  if(mode === "period"){
+    const order = state.timetable.periods.map(p => p.name);
+    rows.sort((a, b) => {
+      const ia = order.indexOf(a.key), ib = order.indexOf(b.key);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+  }else{
+    rows.sort((a, b) => b.neg - a.neg || b.all - a.all);
+  }
+  return rows;
+}
+function renderStats(){
+  document.querySelectorAll("[data-range]").forEach(b => b.classList.toggle("primary", b.dataset.range === statRange));
+  document.querySelectorAll("[data-mode]").forEach(b => b.classList.toggle("primary", b.dataset.mode === statMode));
+  const rows = statData(statMode, statRange);
+  const box = $("#statBox");
+  const t = document.createElement("table");
+  t.className = "stat";
+  box.replaceChildren(t);
+  const label = statMode === "subject" ? "과목" : statMode === "period" ? "교시" : "학생";
+  const heads = [label, "기록", "긍정", "주의", "외출", "자리비움(분)"];
+  if(statMode !== "student") heads.push("주의가 많은 학생");
+  const hr = document.createElement("tr");
+  heads.forEach(h => { const th = document.createElement("th"); th.textContent = h; hr.appendChild(th); });
+  t.appendChild(hr);
+
+  if(!rows.length){
+    $("#statNote").textContent = "";
+    const div = document.createElement("div");
+    div.className = "stat-empty";
+    div.textContent = "이 기간에는 기록이 없습니다.";
+    box.replaceChildren(div);
+    return;
+  }
+  const sum = {all:0, pos:0, neg:0, out:0, outMin:0};
+  for(const g of rows){
+    const tr = document.createElement("tr");
+    const cells = [g.key, g.all, g.pos, g.neg, g.out, g.outMin];
+    cells.forEach((v, i) => {
+      const td = document.createElement("td");
+      if(i === 3 && v){ const b = document.createElement("b"); b.textContent = v; td.appendChild(b); }
+      else if(i === 2 && v){ const em = document.createElement("i"); em.textContent = v; td.appendChild(em); }
+      else td.textContent = v;
+      tr.appendChild(td);
+    });
+    if(statMode !== "student"){
+      const td = document.createElement("td"); td.className = "txt";
+      td.textContent = Array.from(g.who.entries()).sort((a,b) => b[1]-a[1]).slice(0,3)
+        .map(e => e[0] + " " + e[1]).join(", ") || "-";
+      tr.appendChild(td);
+    }
+    t.appendChild(tr);
+    sum.all += g.all; sum.pos += g.pos; sum.neg += g.neg; sum.out += g.out; sum.outMin += g.outMin;
+  }
+  const tr = document.createElement("tr"); tr.className = "total";
+  [ "합계", sum.all, sum.pos, sum.neg, sum.out, sum.outMin ].forEach(v => {
+    const td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+  });
+  if(statMode !== "student") tr.appendChild(document.createElement("td"));
+  t.appendChild(tr);
+  $("#statNote").textContent = "자리비움(분)은 복귀까지 기록된 외출만 더합니다."
+    + (statMode === "subject" ? " 시간표에 과목이 없거나 수업 시간이 아닌 기록은 '(과목 없음)'으로 묶입니다." : "");
+}
+function openStats(){
+  if(!state) return;
+  statMask.classList.add("on");
+  renderStats();
+}
+$("#statsBtn").addEventListener("click", openStats);
+$("#statClose").addEventListener("click", () => statMask.classList.remove("on"));
+$("#statClose2").addEventListener("click", () => statMask.classList.remove("on"));
+statMask.addEventListener("click", e => { if(e.target === statMask) statMask.classList.remove("on"); });
+document.querySelectorAll("[data-range]").forEach(b => b.addEventListener("click", () => { statRange = b.dataset.range; openStats(); }));
+document.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => { statMode = b.dataset.mode; openStats(); }));
+$("#statXls").addEventListener("click", () => {
+  const rows = statData(statMode, statRange);
+  if(!rows.length){ toast("내려받을 기록이 없습니다"); return; }
+  const label = statMode === "subject" ? "과목" : statMode === "period" ? "교시" : "학생";
+  const head = [label, "기록", "긍정", "주의", "외출", "자리비움(분)"];
+  if(statMode !== "student") head.push("주의가 많은 학생");
+  const table = [head];
+  for(const g of rows){
+    const row = [g.key, g.all, g.pos, g.neg, g.out, g.outMin];
+    if(statMode !== "student"){
+      row.push(Array.from(g.who.entries()).sort((a,b) => b[1]-a[1]).slice(0,3).map(e => e[0] + " " + e[1]).join(", "));
+    }
+    table.push(row);
+  }
+  const rangeName = statRange === "today" ? today() : statRange === "week" ? "최근7일" : "전체";
+  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n'
+    + '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" '
+    + 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
+    + sheet(label + "별정리", table) + "</Workbook>";
+  downloadBlob(new Blob(["﻿" + xml], {type:"application/vnd.ms-excel;charset=utf-8"}),
+               label + "별정리_" + rangeName + ".xls");
+  toast("정리표를 내려받았습니다");
+});
 
 /* ---------------- 백업 파일 ---------------- */
 function downloadBlob(blob, filename){
@@ -1096,6 +1478,7 @@ function toast(msg){
 document.addEventListener("keydown", e => {
   if(e.key !== "Escape") return;
   if(fbMask.classList.contains("on")) fbMask.classList.remove("on");
+  else if(statMask.classList.contains("on")) statMask.classList.remove("on");
   else if(memoMask.classList.contains("on")) closeMemo();
   else if(mask.classList.contains("on")) closeModal();
   else if(arrange) setArrange(false);
@@ -1112,7 +1495,7 @@ let curDay = today();
 setInterval(() => {
   if(!state || drag) return;
   if(today() !== curDay){ curDay = today(); renderLog(); }
-  renderBoard(); renderAlerts();
+  renderBoard(); renderAlerts(); renderNowPeriod();
 }, 20000);
 
 /* ---------------- 교사 계정 (이 컴퓨터에만 저장) ---------------- */
