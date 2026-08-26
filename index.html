@@ -12,6 +12,9 @@
   --neg:#e0523f; --neg-soft:#fdeae7;
   --neu:#7a6ff0; --neu-soft:#eeecfe;
   --out:#8b5cf6; --out-soft:#ece2ff;
+  --cog:#2563eb; --cog-soft:#e3ecff;   /* 인지적 */
+  --aff:#0f9d58; --aff-soft:#e0f5ea;   /* 정의적 */
+  --beh:#e07b00; --beh-soft:#fff0dc;   /* 행동적 */
   --cw:108px; --ch:64px;
   --heat1:#fff3c4; --heat1-b:#e6c34a;
   --heat2:#ffd9a8; --heat2-b:#e08a2e;
@@ -51,6 +54,28 @@ header{
 .bbtn.neg{background:var(--neg-soft);border-color:#f3b6ac;color:#9c2c1b}
 .bbtn.neu{background:var(--neu-soft);border-color:#c3bdf7;color:#3f3597}
 .bbtn.out{background:var(--out-soft);border-color:#c4a9fb;color:#4b2fa8}
+.bbtn.cog{background:var(--cog-soft);border-color:#a9c4fb;color:#17408f}
+.bbtn.aff{background:var(--aff-soft);border-color:#a6dfc3;color:#0a6b3c}
+.bbtn.beh{background:var(--beh-soft);border-color:#f2c893;color:#8a4b00}
+/* 관찰평가: 영역별로 묶어서 보여준다 */
+.dom-group{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;padding:6px 8px 7px;border-radius:10px;border:1.5px solid var(--line)}
+.dom-group + .dom-group{margin-top:6px}
+.dom-group .dom-name{
+  font-size:12px;font-weight:800;padding:6px 10px;border-radius:8px;white-space:nowrap;align-self:center;
+}
+.dom-group.cog{border-color:#c3d6fb;background:#f6f9ff}
+.dom-group.cog .dom-name{background:var(--cog);color:#fff}
+.dom-group.aff{border-color:#bde5d1;background:#f5fcf8}
+.dom-group.aff .dom-name{background:var(--aff);color:#fff}
+.dom-group.beh{border-color:#f5d7ac;background:#fffaf2}
+.dom-group.beh .dom-name{background:var(--beh);color:#fff}
+.card .doms{display:flex;gap:4px;font-size:10px;font-weight:800;line-height:1}
+.card .doms .c{color:var(--cog)}
+.card .doms .a{color:var(--aff)}
+.card .doms .b{color:var(--beh)}
+.li .b.cog{background:var(--cog-soft);color:#17408f}
+.li .b.aff{background:var(--aff-soft);color:#0a6b3c}
+.li .b.beh{background:var(--beh-soft);color:#8a4b00}
 .bbtn:active{transform:translateY(1px)}
 body.nosel .bbtn{opacity:.38}
 .hd-right{display:flex;flex-direction:column;gap:6px;flex:0 0 auto}
@@ -215,46 +240,44 @@ table.stat td i{color:var(--pos);font-style:normal}
 }
 .note{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--muted);line-height:1.65}
 .modal-ft{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
-/* ---------- 교사 로그인 화면 ---------- */
-#auth{
-  position:fixed;inset:0;z-index:1500;padding:20px;overflow:auto;
+/* ---------- 첫 화면 (프로그램 고르기) ---------- */
+#home{
+  position:fixed;inset:0;z-index:1500;padding:24px;overflow:auto;
   background:linear-gradient(160deg,#eef2f8 0%,#dde5f4 60%,#e9e4fb 100%);
   display:flex;align-items:center;justify-content:center;
 }
-body.authed #auth{display:none}
-body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer{display:none}
-.auth-card{
-  background:var(--panel);border-radius:18px;width:min(420px,100%);
-  box-shadow:0 24px 60px rgba(18,28,50,.18);overflow:hidden;
+body:not(.home) #home{display:none}
+body.home > header, body.home > main, body.home > footer{display:none}
+.home-box{width:min(880px,100%);text-align:center}
+.home-box h1{margin:0;font-size:30px;letter-spacing:-.8px}
+.home-box .sub{margin:8px 0 26px;font-size:15px;color:var(--muted)}
+.home-pick{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.pick{
+  flex:1 1 320px;max-width:400px;background:var(--panel);border:2px solid var(--line);
+  border-radius:18px;padding:30px 24px;cursor:pointer;text-align:left;
+  box-shadow:0 10px 30px rgba(18,28,50,.10);transition:transform .1s,border-color .12s,box-shadow .12s;
+  font-family:inherit;
 }
-.auth-hd{padding:26px 26px 6px;text-align:center}
-.auth-hd h1{margin:0;font-size:23px;letter-spacing:-.6px}
-.auth-hd p{margin:6px 0 0;font-size:14px;color:var(--muted)}
-.auth-tabs{display:flex;gap:6px;padding:16px 22px 0}
-.auth-tabs button{
-  flex:1;border:0;background:#f2f5fa;color:var(--muted);padding:11px 0;font-size:15px;font-weight:800;
-  border-radius:10px 10px 0 0;border-bottom:3px solid transparent;
+.pick:hover{transform:translateY(-3px);box-shadow:0 16px 38px rgba(18,28,50,.16)}
+.pick .ico{font-size:38px;line-height:1}
+.pick h2{margin:12px 0 8px;font-size:22px;letter-spacing:-.5px}
+.pick p{margin:0;font-size:14px;color:var(--muted);line-height:1.7}
+.pick .go{
+  display:inline-block;margin-top:16px;font-size:14px;font-weight:800;
+  padding:9px 16px;border-radius:10px;
 }
-.auth-tabs button.on{background:var(--accent-soft);color:var(--accent);border-bottom-color:var(--accent)}
-.auth-form{display:none;padding:18px 22px 4px}
-.auth-form.on{display:block}
-.auth-form label{display:block;font-size:13px;font-weight:800;color:var(--muted);margin:0 0 5px}
-.auth-form .fld{margin-bottom:13px}
-.auth-form input[type=text],.auth-form input[type=password]{
-  width:100%;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;
-  font-size:15px;font-family:inherit;background:#fbfcfe;
+.pick.observe{border-color:#bcd0f7}
+.pick.observe:hover{border-color:var(--accent)}
+.pick.observe .go{background:var(--accent-soft);color:var(--accent)}
+.pick.behavior{border-color:#c6e6d8}
+.pick.behavior:hover{border-color:var(--pos)}
+.pick.behavior .go{background:var(--pos-soft);color:#12603f}
+.home-note{
+  margin:26px auto 0;max-width:640px;font-size:12.5px;color:var(--muted);line-height:1.8;
 }
-.auth-form input:focus{outline:none;border-color:var(--accent);background:#fff}
-.auth-form .keep{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:13px}
-.auth-form .go{width:100%;padding:13px;font-size:16px}
-.auth-msg{min-height:20px;font-size:13px;font-weight:700;color:var(--neg);margin:0 0 8px;line-height:1.5}
-.auth-msg.ok{color:var(--pos)}
-.auth-note{
-  margin:6px 0 0;padding:14px 22px 20px;font-size:12px;color:var(--muted);line-height:1.7;
-  border-top:1px solid var(--line);background:#fafbfd;
-}
-.who-row{display:flex;gap:8px;align-items:center;justify-content:flex-end;font-size:12px;font-weight:800;color:var(--muted)}
+#homeVer{font-size:12px;color:var(--muted);font-weight:700}
 .link-btn{border:0;background:none;color:var(--accent);font-size:12px;font-weight:800;text-decoration:underline;padding:0}
+.who-row{display:flex;gap:10px;align-items:center;justify-content:flex-end;font-size:12px;font-weight:800;color:var(--text)}
 #toast{
   position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(14px);
   background:#1e2530;color:#fff;padding:11px 20px;border-radius:999px;font-size:14px;font-weight:700;
@@ -269,44 +292,36 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
 </head>
 <body class="nosel">
 
-<div id="auth">
-  <div class="auth-card">
-    <div class="auth-hd">
-      <h1>학급 행동 기록판</h1>
-      <p>교사용 · 이 컴퓨터에만 저장됩니다 <span id="ver"></span></p>
+<div id="home">
+  <div class="home-box">
+    <h1>학급 관찰·기록 도구</h1>
+    <p class="sub">쓰실 프로그램을 고르세요. 학생 명단과 자리 배치는 두 프로그램이 함께 씁니다. <span id="homeVer"></span></p>
+    <div class="home-pick">
+      <button class="pick observe" id="pickObserve">
+        <div class="ico">🔎</div>
+        <h2>아동 관찰평가용 클릭 프로그램</h2>
+        <p>인지적·정의적·행동적 세 영역의 관찰 특징을 색으로 나눠 놓고, 학생을 누른 뒤 해당 특징을 눌러 관찰 내용을 모읍니다.</p>
+        <span class="go">관찰평가 시작 →</span>
+      </button>
+      <button class="pick behavior" id="pickBehavior">
+        <div class="ico">📋</div>
+        <h2>아동 행동기록용 프로그램</h2>
+        <p>수업 중 학생 행동을 두 번의 클릭으로 기록합니다. 주의 행동 색 경고, 화장실·보건실 외출 시간 관리가 함께 들어 있습니다.</p>
+        <span class="go">행동기록 시작 →</span>
+      </button>
     </div>
-    <div class="auth-tabs">
-      <button id="tabLogin" class="on">로그인</button>
-      <button id="tabSignup">회원가입</button>
-    </div>
-
-    <form class="auth-form on" id="loginForm" autocomplete="off">
-      <div class="fld"><label for="loginId">아이디</label><input type="text" id="loginId" autocomplete="username"></div>
-      <div class="fld"><label for="loginPw">비밀번호</label><input type="password" id="loginPw" autocomplete="current-password"></div>
-      <label class="keep"><input type="checkbox" id="keepLogin" checked> 이 컴퓨터에서 로그인 유지</label>
-      <p class="auth-msg" id="loginMsg"></p>
-      <button type="submit" class="btn primary go" id="loginGo">로그인</button>
-    </form>
-
-    <form class="auth-form" id="signupForm" autocomplete="off">
-      <div class="fld"><label for="suId">아이디</label><input type="text" id="suId" placeholder="영문·숫자 3자 이상" autocomplete="username"></div>
-      <div class="fld"><label for="suPw">비밀번호</label><input type="password" id="suPw" placeholder="6자 이상" autocomplete="new-password"></div>
-      <div class="fld"><label for="suPw2">비밀번호 확인</label><input type="password" id="suPw2" autocomplete="new-password"></div>
-      <p class="auth-msg" id="signupMsg"></p>
-      <button type="submit" class="btn primary go" id="signupGo">가입하고 시작하기</button>
-    </form>
-
-    <p class="auth-note">아이디와 비밀번호는 이 브라우저 안에서만 쓰이는 잠금장치입니다. 계정과 학급 기록 모두 이 컴퓨터에만 저장되고 어디로도 전송되지 않으며, 이름·이메일 같은 개인정보는 받지 않습니다. 비밀번호는 원문 대신 암호화된 값(PBKDF2)으로만 저장되어 잊어버리면 되찾을 수 없으니, <b>설정 → 데이터에서 백업 파일을 주기적으로 받아 두세요.</b></p>
+    <p class="home-note">기록은 이 컴퓨터의 브라우저에만 저장되며 어디로도 전송되지 않습니다. 브라우저 사용 기록을 지우면 함께 사라지니, 설정 → 데이터에서 백업 파일을 주기적으로 받아 두세요.</p>
   </div>
 </div>
 
 <header>
   <div class="hd-left">
-    <p class="hd-title">학생이 한 행동 <span id="selBadge" class="empty">학생을 먼저 누르세요</span><span id="nowPeriod"></span></p>
+    <p class="hd-title" id="hdTitle">학생이 한 행동 <span id="selBadge" class="empty">학생을 먼저 누르세요</span><span id="nowPeriod"></span></p>
     <div class="behaviors" id="behaviors"></div>
   </div>
   <div class="hd-right">
-    <div class="who-row"><span id="who"></span><button class="link-btn" id="feedbackBtn">의견 보내기</button><button class="link-btn" id="logoutBtn">로그아웃</button></div>
+    <div class="who-row"><span id="who"></span><button class="link-btn" id="feedbackBtn">의견 보내기</button><button class="link-btn" id="homeBtn">첫 화면</button></div>
+    <button class="icon-btn" id="homeTopBtn">🏠 첫 화면</button>
     <button class="icon-btn" id="statsBtn">📊 정리</button>
     <button class="icon-btn" id="settingsBtn">⚙ 설정</button>
     <button class="icon-btn" id="logToggle">기록 숨기기</button>
@@ -319,7 +334,7 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
     <div id="board"></div>
   </div>
   <aside id="log">
-    <div class="log-hd"><h2>오늘의 기록</h2><span id="logCount">0건</span></div>
+    <div class="log-hd"><h2 id="logTitle">오늘의 기록</h2><span id="logCount">0건</span></div>
     <div id="logList"></div>
   </aside>
 </main>
@@ -334,7 +349,7 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
     <div class="modal-hd"><h2>설정</h2><button class="btn" id="closeBtn">닫기</button></div>
     <div class="tabs">
       <button class="tab on" data-tab="students">학생 명단</button>
-      <button class="tab" data-tab="behaviors">행동 버튼</button>
+      <button class="tab" data-tab="behaviors" id="tabItems">행동 버튼</button>
       <button class="tab" data-tab="seats">자리 배치</button>
       <button class="tab" data-tab="timetable">시간표</button>
       <button class="tab" data-tab="data">데이터 내려받기</button>
@@ -352,10 +367,10 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
     </div>
 
     <div class="pane" data-pane="behaviors">
-      <h3>행동 버튼 편집</h3>
-      <p class="help">유형이 <b>주의</b>인 행동이 쌓이면 학생 자리 색이 노랑 → 주황 → 빨강으로 바뀝니다.</p>
+      <h3 id="itemsHead">행동 버튼 편집</h3>
+      <p class="help" id="itemsHelp">유형이 <b>주의</b>인 행동이 쌓이면 학생 자리 색이 노랑 → 주황 → 빨강으로 바뀝니다.</p>
       <div class="blist" id="bEdit"></div>
-      <div class="row"><button class="btn" id="addBehavior">+ 행동 추가</button><button class="btn primary" id="saveBehaviors">버튼 저장</button></div>
+      <div class="row"><button class="btn" id="addBehavior">+ 항목 추가</button><button class="btn primary" id="saveBehaviors">버튼 저장</button></div>
     </div>
 
     <div class="pane" data-pane="seats">
@@ -391,7 +406,7 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
     </div>
 
     <div class="pane" data-pane="data">
-      <h3>행동 기록 엑셀(xls)로 받기</h3>
+      <h3 id="xlsHead">행동 기록 엑셀(xls)로 받기</h3>
       <p class="help">기록 시트와 학생별 집계 시트가 함께 저장됩니다. 엑셀에서 바로 열립니다.</p>
       <div class="row">
         <button class="btn primary" id="xlsAll">전체 기간 내려받기</button>
@@ -471,12 +486,10 @@ body:not(.authed) > header, body:not(.authed) > main, body:not(.authed) > footer
 
 <script>
 "use strict";
-const APP_VERSION = "1.2.0";            // 배포 버전 (git 태그와 같이 올린다)
+const APP_VERSION = "2.0.0";            // 배포 버전 (git 태그와 같이 올린다)
 const FEEDBACK_URL = "";                // 의견을 받을 구글폼 등 주소 (비워두면 복사만 안내)
-const LEGACY_KEY  = "seatlog.v1";       // 로그인 기능 이전에 쓰던 저장 키
-const AUTH_KEY    = "seatlog.auth";
-const SESSION_KEY = "seatlog.session";
-let KEY = LEGACY_KEY;                   // 로그인하면 교사별 키로 바뀐다
+const LEGACY_KEY  = "seatlog.v1";       // 학급 데이터 저장 키
+let KEY = LEGACY_KEY;
 const DEFAULT_BEHAVIORS = [
   {id:"b1", label:"발표",       type:"pos"},
   {id:"b2", label:"질문",       type:"pos"},
@@ -494,7 +507,32 @@ const DEFAULT_BEHAVIORS = [
   {id:"b12",label:"보건실",      type:"out"},
   {id:"b15",label:"기타",       type:"neu", ask:true}
 ];
-const TYPE_LABEL = {pos:"긍정", neg:"주의", neu:"기타", out:"외출"};
+const TYPE_LABEL = {pos:"긍정", neg:"주의", neu:"기타", out:"외출", cog:"인지적", aff:"정의적", beh:"행동적"};
+// 관찰평가용 세 영역과 기본 관찰 항목
+const DOMAINS = [
+  {id:"cog", name:"인지적"},
+  {id:"aff", name:"정의적"},
+  {id:"beh", name:"행동적"}
+];
+const DEFAULT_OBSERVATIONS = [
+  {id:"c1", label:"개념 이해",   type:"cog"},
+  {id:"c2", label:"문제 해결",   type:"cog"},
+  {id:"c3", label:"탐구·질문",   type:"cog"},
+  {id:"c4", label:"집중 지속",   type:"cog"},
+  {id:"c5", label:"오개념",      type:"cog"},
+  {id:"a1", label:"흥미·참여",   type:"aff"},
+  {id:"a2", label:"자신감",      type:"aff"},
+  {id:"a3", label:"끈기",        type:"aff"},
+  {id:"a4", label:"협력 태도",   type:"aff"},
+  {id:"a5", label:"배려·존중",   type:"aff"},
+  {id:"a6", label:"불안·위축",   type:"aff"},
+  {id:"b1", label:"발표 행동",   type:"beh"},
+  {id:"b2", label:"실험·조작",   type:"beh"},
+  {id:"b3", label:"과제 수행",   type:"beh"},
+  {id:"b4", label:"도움 요청",   type:"beh"},
+  {id:"b5", label:"규칙 지키기", type:"beh"},
+  {id:"b6", label:"산만함",      type:"beh"}
+];
 const CARD_SIZES = {s:{w:92,h:56}, m:{w:108,h:64}, l:{w:132,h:78}};
 const DAYS = ["월","화","수","목","금"];
 const DEFAULT_PERIODS = [
@@ -511,15 +549,19 @@ const defaultTimetable = () => ({
 });
 const OUT_LIMIT_MIN = 10;   // 이 시간을 넘기면 화면에 알림
 
-let state = null;      // 로그인한 교사의 학급 데이터
-let account = null;    // 로그인한 교사
-let selected = null;   // 선택된 학생 id
-let arrange = false;   // 자리 배치 모드
+let state = null;         // 학급 데이터 (두 프로그램이 함께 쓴다)
+let mode = "behavior";    // "behavior" = 행동기록 · "observe" = 관찰평가
+let selected = null;      // 선택된 학생 id
+let arrange = false;      // 자리 배치 모드
+const isObserve = () => mode === "observe";
+// 지금 프로그램에서 쓰는 버튼 목록
+const items = () => (isObserve() ? state.observations : state.behaviors) || [];
+const modeLogs = () => state.logs.filter(l => (l.mode || "behavior") === mode);
 
 /* ---------------- 저장 / 불러오기 ---------------- */
 function load(){
   try{
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(KEY) || adoptAccountData();
     if(raw){
       const s = JSON.parse(raw);
       s.students  = s.students || [];
@@ -529,7 +571,24 @@ function load(){
       return migrate(s);
     }
   }catch(e){ console.warn("저장 데이터를 읽지 못했습니다", e); }
-  return {v:3, students:[], behaviors:DEFAULT_BEHAVIORS.slice(), logs:[], size:"m", timetable:defaultTimetable()};
+  return {v:4, students:[], behaviors:DEFAULT_BEHAVIORS.slice(), observations:DEFAULT_OBSERVATIONS.slice(),
+          logs:[], size:"m", timetable:defaultTimetable()};
+}
+// 로그인이 있던 시절 계정별로 저장된 데이터 중 가장 많이 쓴 것을 이어받는다
+function adoptAccountData(){
+  let best = null, bestCount = -1;
+  for(let i = 0; i < localStorage.length; i++){
+    const k = localStorage.key(i);
+    if(k.indexOf(KEY + ":") !== 0) continue;
+    try{
+      const v = localStorage.getItem(k);
+      const o = JSON.parse(v);
+      const n = (o.logs ? o.logs.length : 0) + (o.students ? o.students.length : 0);
+      if(n > bestCount){ best = v; bestCount = n; }
+    }catch(e){ /* 못 읽는 항목은 건너뛴다 */ }
+  }
+  if(best) localStorage.setItem(KEY, best);
+  return best;
 }
 // 예전 형식을 현재 형식으로 단계별로 올린다
 function migrate(s){
@@ -537,6 +596,12 @@ function migrate(s){
   if(s.v < 3){
     s.timetable = s.timetable || defaultTimetable();
     s.v = 3;
+  }
+  if(s.v < 4){
+    // 관찰평가 항목을 새로 넣고, 기존 기록은 모두 행동기록용으로 표시한다
+    s.observations = (s.observations && s.observations.length) ? s.observations : DEFAULT_OBSERVATIONS.slice();
+    for(const l of s.logs) if(!l.mode) l.mode = "behavior";
+    s.v = 4;
   }
   return s;
 }
@@ -619,32 +684,64 @@ function logSubject(l){
 /* ---------------- 그리기 ---------------- */
 const $ = s => document.querySelector(s);
 const board = $("#board");
-const behaviorById = id => state.behaviors.find(b => b.id === id);
+// 행동기록·관찰평가 양쪽 목록에서 찾는다 (지난 기록도 이름을 잃지 않도록)
+const behaviorById = id =>
+  state.behaviors.find(b => b.id === id) || (state.observations || []).find(b => b.id === id);
 const studentById  = id => state.students.find(s => s.id === id);
 
 function todayCounts(sid){
   const d = today();
-  let neg = 0, pos = 0;
+  const c = {neg:0, pos:0, cog:0, aff:0, beh:0};
   for(const l of state.logs){
     if(l.studentId !== sid || dayKey(l.ts) !== d) continue;
+    if((l.mode || "behavior") !== mode) continue;
     const b = behaviorById(l.behaviorId);
     const type = b ? b.type : l.type;
-    if(type === "neg") neg++; else if(type === "pos") pos++;
+    if(c[type] !== undefined) c[type]++;
   }
-  return {neg, pos};
+  return c;
 }
 const heatClass = neg => neg >= 5 ? "h3" : neg >= 3 ? "h2" : neg >= 1 ? "h1" : "";
 
+function makeItemButton(b){
+  const el = document.createElement("button");
+  el.className = "bbtn " + b.type;
+  el.textContent = b.label;
+  // '기타'처럼 메모를 묻는 항목은 입력창을 먼저 연다
+  el.addEventListener("click", () => b.ask ? openMemo(b.id) : record(b.id, ""));
+  return el;
+}
 function renderBehaviors(){
   const wrap = $("#behaviors");
   wrap.innerHTML = "";
-  for(const b of state.behaviors){
-    const el = document.createElement("button");
-    el.className = "bbtn " + b.type;
-    el.textContent = b.label;
-    // '기타'처럼 메모를 묻는 행동은 입력창을 먼저 연다
-    el.addEventListener("click", () => b.ask ? openMemo(b.id) : record(b.id, ""));
-    wrap.appendChild(el);
+  wrap.classList.toggle("byDomain", isObserve());
+  if(!isObserve()){
+    for(const b of items()) wrap.appendChild(makeItemButton(b));
+    return;
+  }
+  // 관찰평가: 인지적·정의적·행동적 세 줄로 나누고 영역마다 색을 준다
+  for(const dom of DOMAINS){
+    const list = items().filter(b => b.type === dom.id);
+    if(!list.length) continue;
+    const g = document.createElement("div");
+    g.className = "dom-group " + dom.id;
+    const name = document.createElement("span");
+    name.className = "dom-name";
+    name.textContent = dom.name;
+    g.appendChild(name);
+    list.forEach(b => g.appendChild(makeItemButton(b)));
+    wrap.appendChild(g);
+  }
+  const rest = items().filter(b => !DOMAINS.some(d => d.id === b.type));
+  if(rest.length){
+    const g = document.createElement("div");
+    g.className = "dom-group";
+    const name = document.createElement("span");
+    name.className = "dom-name"; name.style.background = "#8894a6"; name.style.color = "#fff";
+    name.textContent = "기타";
+    g.appendChild(name);
+    rest.forEach(b => g.appendChild(makeItemButton(b)));
+    wrap.appendChild(g);
   }
 }
 
@@ -700,7 +797,7 @@ function makeCard(st){
   const out = activeOut(st.id);
   const el = document.createElement("div");
   el.className = "card "
-    + (out ? "out " + (outMinutes(out) >= OUT_LIMIT_MIN ? "late " : "") : heatClass(c.neg) + " ")
+    + (out ? "out " + (outMinutes(out) >= OUT_LIMIT_MIN ? "late " : "") : (isObserve() ? "" : heatClass(c.neg)) + " ")
     + (selected === st.id ? "sel" : "");
   el.dataset.id = st.id;
   const no = document.createElement("div"); no.className = "no"; no.textContent = st.num + "번";
@@ -710,6 +807,18 @@ function makeCard(st){
     const tag = document.createElement("div"); tag.className = "tag";
     tag.textContent = logLabel(out) + " " + hhmm(out.ts) + " · " + outMinutes(out) + "분";
     el.appendChild(tag);
+  }else if(isObserve()){
+    if(c.cog || c.aff || c.beh){
+      const doms = document.createElement("div"); doms.className = "doms";
+      [["c", c.cog], ["a", c.aff], ["b", c.beh]].forEach(pair => {
+        if(!pair[1]) return;
+        const sp = document.createElement("span");
+        sp.className = pair[0];
+        sp.textContent = {c:"인", a:"정", b:"행"}[pair[0]] + " " + pair[1];
+        doms.appendChild(sp);
+      });
+      el.appendChild(doms);
+    }
   }else if(c.neg || c.pos){
     const cnt = document.createElement("div"); cnt.className = "cnt";
     if(c.pos){ const i = document.createElement("i"); i.textContent = "＋" + c.pos; cnt.appendChild(i); }
@@ -723,6 +832,7 @@ function makeCard(st){
 /* ---------------- 화장실 · 보건실 외출 ---------------- */
 // 오늘 나가서 아직 안 돌아온 기록
 function activeOut(sid){
+  if(isObserve()) return null;
   const d = today();
   for(let i = state.logs.length - 1; i >= 0; i--){
     const l = state.logs[i];
@@ -743,15 +853,16 @@ function nameOf(sid){ const s = studentById(sid); return s ? s.num + "번 " + s.
 function renderAlerts(){
   const box = $("#alerts");
   box.innerHTML = "";
-  const late = state.logs.filter(l => logType(l) === "out" && !l.returnTs
+  const late = (isObserve() ? [] : state.logs).filter(l => logType(l) === "out" && !l.returnTs
     && dayKey(l.ts) === today() && outMinutes(l) >= OUT_LIMIT_MIN);
   if(!late.length){
     const h = document.createElement("span");
     h.className = "hint";
-    const outNow = state.logs.filter(l => logType(l) === "out" && !l.returnTs && dayKey(l.ts) === today());
+    const outNow = (isObserve() ? [] : state.logs).filter(l => logType(l) === "out" && !l.returnTs && dayKey(l.ts) === today());
     h.textContent = outNow.length
       ? "외출 중 " + outNow.length + "명 · 돌아오면 보라색 칸을 누르세요"
-      : "학생 칸 → 행동 버튼 순서로 누르면 기록됩니다";
+      : (isObserve() ? "학생 칸 → 관찰 항목 순서로 누르면 기록됩니다"
+                     : "학생 칸 → 행동 버튼 순서로 누르면 기록됩니다");
     box.appendChild(h);
     return;
   }
@@ -768,14 +879,15 @@ function renderAlerts(){
 function renderLog(){
   const list = $("#logList");
   const d = today();
-  const items = state.logs.filter(l => dayKey(l.ts) === d).sort((a, b) => b.ts - a.ts);
-  $("#logCount").textContent = items.length + "건";
+  const rows = modeLogs().filter(l => dayKey(l.ts) === d).sort((a, b) => b.ts - a.ts);
+  $("#logCount").textContent = rows.length + "건";
   list.innerHTML = "";
-  if(!items.length){
-    list.innerHTML = '<div class="log-empty">학생 칸 → 행동 버튼<br>두 번 누르면 여기에 쌓입니다.</div>';
+  if(!rows.length){
+    list.innerHTML = '<div class="log-empty">학생 칸 → ' + (isObserve() ? "관찰 항목" : "행동 버튼")
+      + '<br>두 번 누르면 여기에 쌓입니다.</div>';
     return;
   }
-  for(const l of items){
+  for(const l of rows){
     const st = studentById(l.studentId), b = behaviorById(l.behaviorId);
     const row = document.createElement("div"); row.className = "li";
     const t = document.createElement("span"); t.className = "t"; t.textContent = hhmm(l.ts);
@@ -833,7 +945,7 @@ function record(behaviorId, memo){
   }
   const now = Date.now(), p = periodAt(now);
   state.logs.push({
-    id: uid(), ts: now, studentId: st.id,
+    id: uid(), ts: now, mode, studentId: st.id,
     behaviorId: b.id, behaviorLabel: b.label, type: b.type,
     period: p ? p.name : "", subject: p ? p.subject : "",
     memo: (memo || "").trim()
@@ -952,6 +1064,7 @@ function openModal(tab){
   document.querySelectorAll("[data-size]").forEach(b => b.classList.toggle("primary", b.dataset.size === state.size));
   renderBehaviorEditor();
   renderPeriodEditor();
+  $("#xlsHead").textContent = (isObserve() ? "관찰 기록" : "행동 기록") + " 엑셀(xls)로 받기";
   $("#dataStat").textContent = "전체 " + state.logs.length + "건 · 오늘 "
     + state.logs.filter(l => dayKey(l.ts) === today()).length + "건 · 학생 " + state.students.length + "명";
 }
@@ -994,11 +1107,19 @@ $("#sampleRoster").addEventListener("click", () => {
 function renderBehaviorEditor(){
   const wrap = $("#bEdit");
   wrap.innerHTML = "";
-  state.behaviors.forEach(b => {
+  $("#tabItems").textContent = isObserve() ? "관찰 항목" : "행동 버튼";
+  $("#itemsHead").textContent = isObserve() ? "관찰 항목 편집" : "행동 버튼 편집";
+  $("#itemsHelp").innerHTML = isObserve()
+    ? "영역(인지적·정의적·행동적)에 따라 버튼 색이 나뉘고, 화면 위쪽에 영역별로 묶여 나옵니다."
+    : "유형이 <b>주의</b>인 행동이 쌓이면 학생 자리 색이 노랑 → 주황 → 빨강으로 바뀝니다.";
+  items().forEach(b => {
     const row = document.createElement("div"); row.className = "brow"; row.dataset.id = b.id;
     const inp = document.createElement("input"); inp.type = "text"; inp.value = b.label; inp.maxLength = 10;
     const sel = document.createElement("select");
-    [["pos","긍정"],["neg","주의"],["out","외출(시간 측정)"],["neu","기타"]].forEach(pair => {
+    const types = isObserve()
+      ? [["cog","인지적"],["aff","정의적"],["beh","행동적"]]
+      : [["pos","긍정"],["neg","주의"],["out","외출(시간 측정)"],["neu","기타"]];
+    types.forEach(pair => {
       const o = document.createElement("option"); o.value = pair[0]; o.textContent = pair[1];
       if(b.type === pair[0]) o.selected = true;
       sel.appendChild(o);
@@ -1022,16 +1143,17 @@ function collectBehaviors(){
   }));
 }
 $("#addBehavior").addEventListener("click", () => {
-  state.behaviors = collectBehaviors();
-  state.behaviors.push({id: uid(), label: "새 행동", type: "neu"});
+  const list = collectBehaviors();
+  list.push({id: uid(), label: isObserve() ? "새 관찰 항목" : "새 행동", type: isObserve() ? "cog" : "neu"});
+  if(isObserve()) state.observations = list; else state.behaviors = list;
   renderBehaviorEditor();
 });
 $("#saveBehaviors").addEventListener("click", () => {
   const list = collectBehaviors();
-  if(!list.length){ toast("행동 버튼은 최소 1개 필요합니다"); return; }
-  state.behaviors = list;
+  if(!list.length){ toast("버튼은 최소 1개 필요합니다"); return; }
+  if(isObserve()) state.observations = list; else state.behaviors = list;
   save(); renderAll();
-  toast("행동 버튼을 저장했습니다");
+  toast(isObserve() ? "관찰 항목을 저장했습니다" : "행동 버튼을 저장했습니다");
 });
 
 /* 시간표 */
@@ -1173,12 +1295,11 @@ function statSheet(mode, logs){
   const groups = new Map();
   for(const l of logs){
     const k = mode === "subject" ? logSubject(l) : logPeriod(l);
-    if(!groups.has(k)) groups.set(k, {all:0, pos:0, neg:0, out:0, outMin:0});
+    if(!groups.has(k)) groups.set(k, {all:0, pos:0, neg:0, out:0, outMin:0, cog:0, aff:0, beh:0});
     const g = groups.get(k), t = logType(l);
     g.all++;
-    if(t === "pos") g.pos++;
-    else if(t === "neg") g.neg++;
-    else if(t === "out"){ g.out++; if(l.returnTs) g.outMin += outMinutes(l); }
+    if(g[t] !== undefined) g[t]++;
+    if(t === "out" && l.returnTs) g.outMin += outMinutes(l);
   }
   const order = mode === "period" ? state.timetable.periods.map(p => p.name) : [];
   const keys = Array.from(groups.keys()).sort((a, b) => {
@@ -1186,12 +1307,14 @@ function statSheet(mode, logs){
       const ia = order.indexOf(a), ib = order.indexOf(b);
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
     }
-    return groups.get(b).neg - groups.get(a).neg || groups.get(b).all - groups.get(a).all;
+    const key = isObserve() ? "all" : "neg";
+    return groups.get(b)[key] - groups.get(a)[key] || groups.get(b).all - groups.get(a).all;
   });
-  const table = [[label, "기록", "긍정", "주의", "외출", "자리비움(분)"]];
+  const cols = statCols();
+  const table = [[label, "기록"].concat(cols.map(c => c[1]))];
   for(const k of keys){
     const g = groups.get(k);
-    table.push([k, g.all, g.pos, g.neg, g.out, g.outMin]);
+    table.push([k, g.all].concat(cols.map(c => g[c[0]])));
   }
   return table;
 }
@@ -1199,34 +1322,48 @@ function logLabel(l){ const b = behaviorById(l.behaviorId); return b ? b.label :
 
 function exportXls(onlyToday){
   const d = today();
-  const logs = state.logs.filter(l => !onlyToday || dayKey(l.ts) === d).sort((a, b) => a.ts - b.ts);
+  const prefix = isObserve() ? "관찰평가" : "행동기록";
+  const logs = modeLogs().filter(l => !onlyToday || dayKey(l.ts) === d).sort((a, b) => a.ts - b.ts);
   if(!logs.length){ toast("내려받을 기록이 없습니다"); return; }
 
-  const rec = [["일시","교시","과목","번호","이름","행동","유형","나간시각","돌아온시각","자리비움(분)","특이사항"]];
+  const rec = [isObserve()
+    ? ["일시","교시","과목","번호","이름","관찰 항목","영역","특이사항"]
+    : ["일시","교시","과목","번호","이름","행동","유형","나간시각","돌아온시각","자리비움(분)","특이사항"]];
   for(const l of logs){
     const st = studentById(l.studentId);
-    const isOut = logType(l) === "out";
-    rec.push([stamp(l.ts), logPeriod(l), logSubject(l), st ? st.num : "", st ? st.name : "(삭제된 학생)",
-              logLabel(l), TYPE_LABEL[logType(l)] || "기타",
-              isOut ? hms(l.ts) : "",
-              isOut ? (l.returnTs ? hms(l.returnTs) : "미복귀") : "",
-              isOut && l.returnTs ? outMinutes(l) : "",
-              l.memo || ""]);
+    const head = [stamp(l.ts), logPeriod(l), logSubject(l), st ? st.num : "", st ? st.name : "(삭제된 학생)",
+                  logLabel(l), TYPE_LABEL[logType(l)] || "기타"];
+    if(isObserve()){
+      rec.push(head.concat([l.memo || ""]));
+    }else{
+      const isOut = logType(l) === "out";
+      rec.push(head.concat([
+        isOut ? hms(l.ts) : "",
+        isOut ? (l.returnTs ? hms(l.returnTs) : "미복귀") : "",
+        isOut && l.returnTs ? outMinutes(l) : "",
+        l.memo || ""]));
+    }
   }
 
   const labels = [];
   for(const l of logs){ const lb = logLabel(l); if(lb && labels.indexOf(lb) < 0) labels.push(lb); }
 
-  const sum = [["번호","이름","전체","긍정","주의","외출횟수","자리비움합계(분)","10분초과"].concat(labels)];
+  const head = isObserve()
+    ? ["번호","이름","전체","인지적","정의적","행동적"]
+    : ["번호","이름","전체","긍정","주의","외출횟수","자리비움합계(분)","10분초과"];
+  const sum = [head.concat(labels)];
   for(const st of state.students.slice().sort((a, b) => a.num - b.num)){
     const mine = logs.filter(l => l.studentId === st.id);
-    const outs = mine.filter(l => logType(l) === "out");
-    const row = [st.num, st.name, mine.length,
-      mine.filter(l => logType(l) === "pos").length,
-      mine.filter(l => logType(l) === "neg").length,
-      outs.length,
-      outs.reduce((a, l) => a + (l.returnTs ? outMinutes(l) : 0), 0),
-      outs.filter(l => l.returnTs && outMinutes(l) >= OUT_LIMIT_MIN).length];
+    const count = t => mine.filter(l => logType(l) === t).length;
+    let row;
+    if(isObserve()){
+      row = [st.num, st.name, mine.length, count("cog"), count("aff"), count("beh")];
+    }else{
+      const outs = mine.filter(l => logType(l) === "out");
+      row = [st.num, st.name, mine.length, count("pos"), count("neg"), outs.length,
+             outs.reduce((a, l) => a + (l.returnTs ? outMinutes(l) : 0), 0),
+             outs.filter(l => l.returnTs && outMinutes(l) >= OUT_LIMIT_MIN).length];
+    }
     for(const lb of labels) row.push(mine.filter(l => logLabel(l) === lb).length);
     sum.push(row);
   }
@@ -1234,7 +1371,7 @@ function exportXls(onlyToday){
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n'
     + '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" '
     + 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
-    + sheet("행동기록", rec) + sheet("학생별집계", sum)
+    + sheet(prefix, rec) + sheet("학생별집계", sum)
     + sheet("과목별집계", statSheet("subject", logs)) + sheet("교시별집계", statSheet("period", logs))
     + "</Workbook>";
 
@@ -1242,7 +1379,7 @@ function exportXls(onlyToday){
   const blob = new Blob(["﻿" + xml], {type:"application/vnd.ms-excel;charset=utf-8"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = "행동기록_" + name + ".xls";
+  a.href = url; a.download = prefix + "_" + name + ".xls";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast(logs.length + "건을 내려받았습니다");
@@ -1255,11 +1392,16 @@ const statMask = $("#statMask");
 let statMode = "subject", statRange = "today";
 
 function rangeLogs(range){
-  if(range === "all") return state.logs.slice();
-  if(range === "today"){ const d = today(); return state.logs.filter(l => dayKey(l.ts) === d); }
+  const base = modeLogs();
+  if(range === "all") return base;
+  if(range === "today"){ const d = today(); return base.filter(l => dayKey(l.ts) === d); }
   const from = Date.now() - 7 * 86400000;
-  return state.logs.filter(l => l.ts >= from);
+  return base.filter(l => l.ts >= from);
 }
+// 표에 쓸 열 구성 (관찰평가는 세 영역, 행동기록은 긍정·주의·외출)
+const statCols = () => isObserve()
+  ? [["cog","인지적"], ["aff","정의적"], ["beh","행동적"]]
+  : [["pos","긍정"], ["neg","주의"], ["out","외출"], ["outMin","자리비움(분)"]];
 // 표의 행 목록을 만든다. 교시별은 시간표 순서, 나머지는 주의 많은 순
 function statData(mode, range){
   const logs = rangeLogs(range);
@@ -1269,14 +1411,14 @@ function statData(mode, range){
                    : nameOf(l.studentId);
   for(const l of logs){
     const k = keyOf(l);
-    if(!groups.has(k)) groups.set(k, {key:k, all:0, pos:0, neg:0, out:0, outMin:0, who:new Map()});
+    if(!groups.has(k)) groups.set(k, {key:k, all:0, pos:0, neg:0, out:0, outMin:0, cog:0, aff:0, beh:0, who:new Map()});
     const g = groups.get(k);
     const t = logType(l);
     g.all++;
-    if(t === "pos") g.pos++;
-    else if(t === "neg") g.neg++;
-    else if(t === "out"){ g.out++; if(l.returnTs) g.outMin += outMinutes(l); }
-    if(mode !== "student" && t === "neg"){
+    if(g[t] !== undefined) g[t]++;
+    if(t === "out" && l.returnTs) g.outMin += outMinutes(l);
+    const mark = isObserve() ? "beh" : "neg";      // 눈여겨볼 학생 기준
+    if(mode !== "student" && t === mark){
       const n = nameOf(l.studentId);
       g.who.set(n, (g.who.get(n) || 0) + 1);
     }
@@ -1289,7 +1431,8 @@ function statData(mode, range){
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
     });
   }else{
-    rows.sort((a, b) => b.neg - a.neg || b.all - a.all);
+    const key = isObserve() ? "all" : "neg";
+    rows.sort((a, b) => b[key] - a[key] || b.all - a.all);
   }
   return rows;
 }
@@ -1302,8 +1445,9 @@ function renderStats(){
   t.className = "stat";
   box.replaceChildren(t);
   const label = statMode === "subject" ? "과목" : statMode === "period" ? "교시" : "학생";
-  const heads = [label, "기록", "긍정", "주의", "외출", "자리비움(분)"];
-  if(statMode !== "student") heads.push("주의가 많은 학생");
+  const cols = statCols();
+  const heads = [label, "기록"].concat(cols.map(c => c[1]));
+  if(statMode !== "student") heads.push(isObserve() ? "행동적 관찰이 많은 학생" : "주의가 많은 학생");
   const hr = document.createElement("tr");
   heads.forEach(h => { const th = document.createElement("th"); th.textContent = h; hr.appendChild(th); });
   t.appendChild(hr);
@@ -1316,14 +1460,15 @@ function renderStats(){
     box.replaceChildren(div);
     return;
   }
-  const sum = {all:0, pos:0, neg:0, out:0, outMin:0};
+  const sum = {all:0, pos:0, neg:0, out:0, outMin:0, cog:0, aff:0, beh:0};
   for(const g of rows){
     const tr = document.createElement("tr");
-    const cells = [g.key, g.all, g.pos, g.neg, g.out, g.outMin];
+    const cells = [g.key, g.all].concat(cols.map(c => g[c[0]]));
     cells.forEach((v, i) => {
       const td = document.createElement("td");
-      if(i === 3 && v){ const b = document.createElement("b"); b.textContent = v; td.appendChild(b); }
-      else if(i === 2 && v){ const em = document.createElement("i"); em.textContent = v; td.appendChild(em); }
+      const colKey = i >= 2 ? cols[i-2][0] : "";
+      if(!isObserve() && colKey === "neg" && v){ const b = document.createElement("b"); b.textContent = v; td.appendChild(b); }
+      else if(!isObserve() && colKey === "pos" && v){ const em = document.createElement("i"); em.textContent = v; td.appendChild(em); }
       else td.textContent = v;
       tr.appendChild(td);
     });
@@ -1334,15 +1479,17 @@ function renderStats(){
       tr.appendChild(td);
     }
     t.appendChild(tr);
-    sum.all += g.all; sum.pos += g.pos; sum.neg += g.neg; sum.out += g.out; sum.outMin += g.outMin;
+    Object.keys(sum).forEach(k => { sum[k] += g[k] || 0; });
   }
   const tr = document.createElement("tr"); tr.className = "total";
-  [ "합계", sum.all, sum.pos, sum.neg, sum.out, sum.outMin ].forEach(v => {
+  ["합계", sum.all].concat(cols.map(c => sum[c[0]])).forEach(v => {
     const td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
   });
   if(statMode !== "student") tr.appendChild(document.createElement("td"));
   t.appendChild(tr);
-  $("#statNote").textContent = "자리비움(분)은 복귀까지 기록된 외출만 더합니다."
+  $("#statNote").textContent = (isObserve()
+      ? "인지적·정의적·행동적 세 영역의 관찰 횟수입니다."
+      : "자리비움(분)은 복귀까지 기록된 외출만 더합니다.")
     + (statMode === "subject" ? " 시간표에 과목이 없거나 수업 시간이 아닌 기록은 '(과목 없음)'으로 묶입니다." : "");
 }
 function openStats(){
@@ -1360,11 +1507,12 @@ $("#statXls").addEventListener("click", () => {
   const rows = statData(statMode, statRange);
   if(!rows.length){ toast("내려받을 기록이 없습니다"); return; }
   const label = statMode === "subject" ? "과목" : statMode === "period" ? "교시" : "학생";
-  const head = [label, "기록", "긍정", "주의", "외출", "자리비움(분)"];
-  if(statMode !== "student") head.push("주의가 많은 학생");
+  const cols = statCols();
+  const head = [label, "기록"].concat(cols.map(c => c[1]));
+  if(statMode !== "student") head.push(isObserve() ? "행동적 관찰이 많은 학생" : "주의가 많은 학생");
   const table = [head];
   for(const g of rows){
-    const row = [g.key, g.all, g.pos, g.neg, g.out, g.outMin];
+    const row = [g.key, g.all].concat(cols.map(c => g[c[0]]));
     if(statMode !== "student"){
       row.push(Array.from(g.who.entries()).sort((a,b) => b[1]-a[1]).slice(0,3).map(e => e[0] + " " + e[1]).join(", "));
     }
@@ -1498,72 +1646,32 @@ setInterval(() => {
   renderBoard(); renderAlerts(); renderNowPeriod();
 }, 20000);
 
-/* ---------------- 교사 계정 (이 컴퓨터에만 저장) ---------------- */
-function authData(){
-  try{ return JSON.parse(localStorage.getItem(AUTH_KEY)) || {users:[]}; }
-  catch(e){ return {users:[]}; }
-}
-const b64    = bytes => btoa(String.fromCharCode.apply(null, Array.from(bytes)));
-const unb64  = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-const cryptoOk = () => !!(window.crypto && crypto.subtle && crypto.getRandomValues);
-
-// 비밀번호는 원문을 저장하지 않고 PBKDF2로 늘린 해시만 보관한다
-async function derive(pw, salt){
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({name:"PBKDF2", salt, iterations:150000, hash:"SHA-256"}, key, 256);
-  return b64(new Uint8Array(bits));
-}
-async function makeHash(pw){
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  return {salt: b64(salt), hash: await derive(pw, salt)};
-}
-
-function setSession(userId, keep){
-  const v = JSON.stringify({userId, ts: Date.now()});
-  clearSession();
-  (keep ? localStorage : sessionStorage).setItem(SESSION_KEY, v);
-}
-function currentSession(){
-  try{
-    const v = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
-    return v ? JSON.parse(v) : null;
-  }catch(e){ return null; }
-}
-function clearSession(){
-  sessionStorage.removeItem(SESSION_KEY);
-  localStorage.removeItem(SESSION_KEY);
-}
-
-function authTab(name){
-  const login = name === "login";
-  $("#tabLogin").classList.toggle("on", login);
-  $("#tabSignup").classList.toggle("on", !login);
-  $("#loginForm").classList.toggle("on", login);
-  $("#signupForm").classList.toggle("on", !login);
-  $("#loginMsg").textContent = "";
-  $("#signupMsg").textContent = "";
-  setTimeout(() => $(login ? "#loginId" : "#suId").focus(), 30);
-}
-$("#tabLogin").addEventListener("click", () => authTab("login"));
-$("#tabSignup").addEventListener("click", () => authTab("signup"));
-
-function startApp(user){
-  account = user;
-  KEY = LEGACY_KEY + ":" + user.id;
-  // 로그인 기능 이전에 쓰던 학급 데이터는 처음 로그인한 계정이 이어받는다
-  const legacy = localStorage.getItem(LEGACY_KEY);
-  if(legacy && !localStorage.getItem(KEY)){
-    localStorage.setItem(KEY, legacy);
-    localStorage.removeItem(LEGACY_KEY);
-  }
-  state = load();
+/* ---------------- 첫 화면과 프로그램 전환 ---------------- */
+const MODE_TITLE = {
+  behavior: {title:"아동 행동기록", hint:"학생이 한 행동", log:"오늘의 기록"},
+  observe:  {title:"아동 관찰평가", hint:"관찰한 특징",   log:"오늘의 관찰"}
+};
+function enterMode(m){
+  mode = m;
+  if(!state) state = load();
+  document.body.classList.remove("home");
+  document.body.classList.toggle("observe", isObserve());
+  document.title = MODE_TITLE[m].title;
+  $("#who").textContent = MODE_TITLE[m].title;
+  $("#hdTitle").firstChild.textContent = MODE_TITLE[m].hint + " ";
+  $("#logTitle").textContent = MODE_TITLE[m].log;
   arrange = false;
   document.body.classList.remove("arrange");
-  document.body.classList.add("authed");
-  $("#who").textContent = (user.name || user.loginId) + " 님";
   select(null);
   renderAll();
   keepStorage();
+}
+function goHome(){
+  document.body.classList.add("home");
+  document.body.classList.remove("arrange");
+  arrange = false;
+  select(null);
+  document.title = "학급 관찰·기록 도구";
 }
 // 저장 공간이 부족할 때 브라우저가 기록을 지우지 않도록 요청한다(지원할 때만)
 function keepStorage(){
@@ -1572,83 +1680,14 @@ function keepStorage(){
       .catch(e => console.warn("저장 유지 요청 실패", e));
   }
 }
-function logout(){
-  clearSession();
-  account = null; state = null; selected = null;
-  document.body.classList.remove("authed", "arrange");
-  $("#loginPw").value = "";
-  authTab("login");
-}
-$("#logoutBtn").addEventListener("click", () => { if(confirm("로그아웃할까요? 기록은 이 컴퓨터에 그대로 남습니다.")) logout(); });
+$("#pickObserve").addEventListener("click", () => enterMode("observe"));
+$("#pickBehavior").addEventListener("click", () => enterMode("behavior"));
+$("#homeBtn").addEventListener("click", goHome);
+$("#homeTopBtn").addEventListener("click", goHome);
 
-$("#loginForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const msg = $("#loginMsg"), btn = $("#loginGo");
-  const id = $("#loginId").value.trim(), pw = $("#loginPw").value;
-  msg.classList.remove("ok");
-  if(!id || !pw){ msg.textContent = "아이디와 비밀번호를 입력해 주세요."; return; }
-  const user = authData().users.find(u => u.loginId === id.toLowerCase());
-  btn.disabled = true; btn.textContent = "확인 중…";
-  try{
-    if(!user || await derive(pw, unb64(user.salt)) !== user.hash){
-      msg.textContent = "아이디 또는 비밀번호가 맞지 않습니다.";
-      return;
-    }
-    setSession(user.id, $("#keepLogin").checked);
-    $("#loginPw").value = "";
-    msg.textContent = "";
-    startApp(user);
-  }catch(err){
-    msg.textContent = "로그인 처리 중 문제가 생겼습니다: " + err.message;
-  }finally{
-    btn.disabled = false; btn.textContent = "로그인";
-  }
-});
-
-$("#signupForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const msg = $("#signupMsg"), btn = $("#signupGo");
-  const id   = $("#suId").value.trim().toLowerCase();
-  const pw   = $("#suPw").value, pw2 = $("#suPw2").value;
-  msg.classList.remove("ok");
-  if(!/^[a-z0-9_.-]{3,20}$/.test(id)){ msg.textContent = "아이디는 영문·숫자 3~20자로 만들어 주세요."; return; }
-  if(pw.length < 6){ msg.textContent = "비밀번호는 6자 이상으로 정해 주세요."; return; }
-  if(pw !== pw2){ msg.textContent = "비밀번호 확인이 일치하지 않습니다."; return; }
-  const d = authData();
-  if(d.users.some(u => u.loginId === id)){ msg.textContent = "이미 쓰고 있는 아이디입니다."; return; }
-  btn.disabled = true; btn.textContent = "만드는 중…";
-  try{
-    const {salt, hash} = await makeHash(pw);
-    const user = {id: uid(), loginId: id, salt, hash, createdAt: Date.now()};
-    d.users.push(user);
-    localStorage.setItem(AUTH_KEY, JSON.stringify(d));
-    setSession(user.id, true);
-    ["#suId","#suPw","#suPw2"].forEach(s => { $(s).value = ""; });
-    msg.textContent = "";
-    startApp(user);
-    toast(id + " 님, 환영합니다");
-  }catch(err){
-    msg.textContent = "가입 처리 중 문제가 생겼습니다: " + err.message;
-  }finally{
-    btn.disabled = false; btn.textContent = "가입하고 시작하기";
-  }
-});
-
-function initAuth(){
-  $("#ver").textContent = "v" + APP_VERSION;
-  if(!cryptoOk()){
-    $("#loginMsg").textContent = "이 브라우저에서는 로그인 기능을 쓸 수 없습니다. 크롬·엣지 최신 버전으로 열어 주세요.";
-    $("#loginGo").disabled = true; $("#signupGo").disabled = true;
-    return;
-  }
-  const users = authData().users;
-  const s = currentSession();
-  const me = s && users.find(u => u.id === s.userId);
-  if(me){ startApp(me); return; }
-  if(s) clearSession();
-  authTab(users.length ? "login" : "signup");
-}
-initAuth();
+$("#homeVer").textContent = "v" + APP_VERSION;
+state = load();
+goHome();
 </script>
 </body>
 </html>
